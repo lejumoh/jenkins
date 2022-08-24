@@ -7,7 +7,7 @@ pipeline {
 		sh "git clone https://github.com/lejumoh/jenkins.git"
 	}
 	}
-	stage ('kratos') {
+	stage ('may') {
 	steps {
 		sh "cd jenkins && ls git branch"
 
