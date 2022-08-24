@@ -1,37 +1,30 @@
 pipeline {
-	agent any 
+	agent any
 	stages {
-    stage(‘Update’) {
+	stage('Build') {
 	steps {
-        sh "sudo rm -rf webserver/ "
+		sh "rm -rf jenkins"
+		sh "git clone https://github.com/lejumoh/jenkins.git"
 	}
 	}
-	stage (‘install’) {
+	stage ('kratos') {
 	steps {
-		sh "sudo yum install npm -y"
-		sh "sudo npm install -g create-react-app@3.4.1"
-	}
-	}
-    stage (‘Initialization’) {
-	steps {
-		sh "npm init react-app webserver --use-npm"
-	}
-    	}
-    stage (‘Build’) {
-	steps {
-		sh "cd webserver && npm run build"
-		sh "sudo cp -R /home/centos/project/docker-compose.yml  /var/lib/jenkins/workspace/SSR/webserver/ && sudo cp -R /home/centos/project/Dockerfile.prod  /var/lib/jenkins/workspace/SSR/webserver/"
-	}
-	}
+		sh "cd jenkins && ls git branch"
 
-        stage (‘Deploy’) {
+	}
+	}
+	stage ('package') {
 	steps {
+		sh "cd jenkins && docker build -t webserver ."
+
+	}
+	}
+		stage ('deploy') {
+	steps {
+		sh "cd jenkins && docker stop webserver || true && docker rm webserver || true && docker run -d -p 80:80 --name webserver:latest"
 		
-		sh	"cd webserver && docker build -t web-server:latest -f /var/lib/jenkins/workspace/SSR/webserver/Dockerfile.prod . " 
-		sh	"docker tag web-server:latest 963750697977.dkr.ecr.us-east-1.amazonaws.com/web-server:latest"
-        sh  "docker push 963750697977.dkr.ecr.us-east-1.amazonaws.com/web-server:latest"
-
-        }
+	}
 	}
 }
 }
+
